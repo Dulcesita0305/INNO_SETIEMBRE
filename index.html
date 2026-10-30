@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard de Performance Comercial & ROI - Septiembre</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              blue: '#2563EB',
+              cyan: '#06B6D4',
+              emerald: '#10B981',
+              dark: '#0B0F19',
+              card: '#111827',
+              border: '#1F2937'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-color: #090D16;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0F172A;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="text-slate-100 min-h-screen bg-[#090D16] antialiased selection:bg-cyan-500/30 selection:text-cyan-200 p-3 sm:p-5 md:p-8">
+
+  <!-- Main Container -->
+  <div class="max-w-7xl mx-auto space-y-6">
+
+    <!-- 1. Header Ejecutivo & Controles -->
+    <header class="bg-[#111827]/90 backdrop-blur-md border border-slate-800/80 rounded-2xl p-4 sm:p-6 shadow-xl relative overflow-hidden">
+      <!-- Glow ambient light -->
+      <div class="absolute -top-24 -right-24 w-72 h-72 bg-blue-600/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-24 -left-24 w-72 h-72 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+        <div>
+          <div class="flex items-center gap-2 mb-1.5 flex-wrap">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Auditoría Oficial
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-800 text-slate-300 border border-slate-700/60">
+              Septiembre 2024
+            </span>
+            <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              Moneda: PEN (S/.)
+            </span>
+          </div>
+          <h1 class="text-xl sm:text-2xl lg:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+            Dashboard de Performance Comercial &amp; ROI
+          </h1>
+          <p class="text-xs sm:text-sm text-slate-400 mt-1 max-w-2xl">
+            Control de retorno de inversión publicitaria, atribución de ventas por unidad de negocio y rendimiento del equipo comercial.
+          </p>
+        </div>
+
+        <!-- Filtros Interactivos (Toggles) -->
+        <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 bg-[#0B0F19] p-1.5 rounded-xl border border-slate-800 self-start md:self-auto w-full sm:w-auto">
+          <span class="text-xs font-medium text-slate-400 px-2 hidden lg:inline">Filtrar Vista:</span>
+          <div class="grid grid-cols-3 sm:flex gap-1 w-full sm:w-auto" id="filterContainer">
+            <button onclick="applyFilter('all')" id="btn-all" class="filter-btn active px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 bg-blue-600 text-white shadow-lg shadow-blue-600/30 text-center">
+              Consolidado
+            </button>
+            <button onclick="applyFilter('inoo')" id="btn-inoo" class="filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80 text-center">
+              Línea INOO
+            </button>
+            <button onclick="applyFilter('crm')" id="btn-crm" class="filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80 text-center">
+              Línea CRM
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- 2. Tarjetas de KPIs Principales -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5 sm:gap-4">
+      <!-- KPI 1: Ingresos Totales -->
+      <div class="bg-[#111827] border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-slate-700 transition">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Ingresos Totales</span>
+          <span class="p-2 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </span>
+        </div>
+        <div class="text-2xl sm:text-2xl lg:text-[26px] font-extrabold text-white tracking-tight" id="kpi-revenue">S/. 35,960.00</div>
+        <div class="mt-2.5 flex items-center justify-between text-xs">
+          <span class="text-emerald-400 font-semibold flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+            <span id="kpi-net-margin">Neto: S/. 31,429.32</span>
+          </span>
+          <span class="text-slate-500" id="kpi-rev-context">100% Total</span>
+        </div>
+      </div>
+
+      <!-- KPI 2: Inversión Ejecutada -->
+      <div class="bg-[#111827] border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-slate-700 transition">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Inversión Ejecutada</span>
+          <span class="p-2 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+          </span>
+        </div>
+        <div class="text-2xl sm:text-2xl lg:text-[26px] font-extrabold text-white tracking-tight" id="kpi-spend">S/. 4,530.68</div>
+        <div class="mt-2.5 flex items-center justify-between text-xs">
+          <span class="text-cyan-400 font-medium" id="kpi-spend-breakdown">Pauta S/. 4,175.68</span>
+          <span class="text-slate-500" id="kpi-spend-tel">Tel: S/. 355.00</span>
+        </div>
+      </div>
+
+      <!-- KPI 3: ROAS Promedio -->
+      <div class="bg-[#111827] border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-emerald-500/40 transition">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">ROAS Promedio</span>
+          <span class="p-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+          </span>
+        </div>
+        <div class="text-2xl sm:text-2xl lg:text-[26px] font-extrabold text-emerald-400 tracking-tight" id="kpi-roas">7.94x</div>
+        <div class="mt-2.5 flex items-center justify-between text-xs">
+          <span class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30" id="kpi-roi-badge">
+            ROI +693.7%
+          </span>
+          <span class="text-slate-400" id="kpi-roas-pure">Pauta: 8.61x</span>
+        </div>
+      </div>
+
+      <!-- KPI 4: CPA Promedio -->
+      <div class="bg-[#111827] border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-slate-700 transition">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">CPA Promedio</span>
+          <span class="p-2 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+          </span>
+        </div>
+        <div class="text-2xl sm:text-2xl lg:text-[26px] font-extrabold text-white tracking-tight" id="kpi-cpa">S/. 503.41</div>
+        <div class="mt-2.5 flex items-center justify-between text-xs">
+          <span class="text-slate-400" id="kpi-cpa-unit">Por cliente ganado</span>
+          <span class="text-cyan-400" id="kpi-cpa-pure">Pauta: S/. 463.96</span>
+        </div>
+      </div>
+
+      <!-- KPI 5: Oportunidades Ganadas -->
+      <div class="bg-[#111827] border border-slate-800/90 rounded-2xl p-4 sm:p-5 relative overflow-hidden group hover:border-slate-700 transition sm:col-span-2 lg:col-span-1">
+        <div class="flex justify-between items-start mb-2">
+          <span class="text-xs font-medium text-slate-400 uppercase tracking-wider">Cierres Ganados</span>
+          <span class="p-2 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+          </span>
+        </div>
+        <div class="text-2xl sm:text-2xl lg:text-[26px] font-extrabold text-white tracking-tight" id="kpi-deals">9 Clientes</div>
+        <div class="mt-2.5 flex items-center justify-between text-xs">
+          <span class="text-slate-400" id="kpi-deals-split">CRM: 5 | INOO: 4</span>
+          <span class="text-emerald-400 font-semibold">100% Efectivo</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Área de Gráficos Interactivos (Chart.js) -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+      <!-- Gráfico 1: Barras Mixtas / Comparativa Ventas vs Inversión -->
+      <div class="lg:col-span-8 bg-[#111827] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg flex flex-col justify-between">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span>
+              Inversión Ejecutada vs. Ingresos por Línea de Negocio
+            </h2>
+            <p class="text-xs text-slate-400">Comparativa directa del capital colocado frente al volumen de facturación generado en Soles</p>
+          </div>
+          <div class="flex items-center gap-4 text-xs font-medium">
+            <span class="flex items-center gap-1.5 text-slate-300">
+              <span class="w-3 h-3 rounded bg-blue-600 inline-block"></span> Ingresos
+            </span>
+            <span class="flex items-center gap-1.5 text-slate-300">
+              <span class="w-3 h-3 rounded bg-cyan-400 inline-block"></span> Inversión
+            </span>
+          </div>
+        </div>
+        <div class="relative h-64 sm:h-72 w-full">
+          <canvas id="chartComparison"></canvas>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mt-4 pt-4 border-t border-slate-800/80 text-xs">
+          <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+            <span class="text-slate-400 block mb-0.5">Ratio Eficiencia CRM:</span>
+            <span class="text-emerald-400 font-bold text-sm">63.34x ROAS</span>
+            <span class="text-slate-500 text-[11px] block">S/. 442.77 inv. → S/. 28,046.00</span>
+          </div>
+          <div class="p-2.5 rounded-xl bg-slate-900/60 border border-slate-800">
+            <span class="text-slate-400 block mb-0.5">Ratio Eficiencia INOO:</span>
+            <span class="text-blue-400 font-bold text-sm">1.94x ROAS</span>
+            <span class="text-slate-500 text-[11px] block">S/. 4,087.91 inv. → S/. 7,914.00</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico 2: Doughnut - Distribución de Ingresos -->
+      <div class="lg:col-span-4 bg-[#111827] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg flex flex-col justify-between">
+        <div class="mb-3">
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+            Share de Ingresos por Unidad
+          </h2>
+          <p class="text-xs text-slate-400">Distribución porcentual sobre la facturación de Septiembre</p>
+        </div>
+        <div class="relative h-56 w-full flex items-center justify-center my-auto">
+          <canvas id="chartShare"></canvas>
+          <!-- Center Text Overlay -->
+          <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+            <span class="text-[11px] text-slate-400 font-medium uppercase tracking-wider">Total</span>
+            <span class="text-sm font-extrabold text-white">S/. 35.96K</span>
+          </div>
+        </div>
+        <div class="mt-4 pt-4 border-t border-slate-800/80 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2 text-slate-300">
+              <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span> CRM COSMIQ
+            </span>
+            <span class="font-bold text-white">78.0% <span class="text-slate-500 font-normal">(S/. 28,046)</span></span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="flex items-center gap-2 text-slate-300">
+              <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span> INOO Digital
+            </span>
+            <span class="font-bold text-white">22.0% <span class="text-slate-500 font-normal">(S/. 7,914)</span></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Gráfico 3: Barras Horizontales - Rendimiento Comercial -->
+      <div class="lg:col-span-12 bg-[#111827] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4">
+          <div>
+            <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              Rendimiento por Responsable Comercial
+            </h2>
+            <p class="text-xs text-slate-400">Ventas generadas (S/.) y número de oportunidades cerradas exitosamente en el periodo</p>
+          </div>
+          <div class="text-xs text-slate-400 bg-slate-900/80 px-3 py-1.5 rounded-lg border border-slate-800 self-start sm:self-auto">
+            4 Ejecutivos Comerciales Activos
+          </div>
+        </div>
+        <div class="relative h-60 sm:h-56 w-full">
+          <canvas id="chartSalesTeam"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Tabla Detallada de Auditoría Financiera -->
+    <section class="bg-[#111827] border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-lg overflow-hidden">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+        <div>
+          <h2 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+            Auditoría Financiera y Desglose de Canales
+          </h2>
+          <p class="text-xs text-slate-400">Desglose granular de inversión ejecutada, atribución directa de ventas y retornos por concepto</p>
+        </div>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <span class="text-xs text-slate-400">Mostrando registros reales</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        </div>
+      </div>
+
+      <!-- Responsive Table Container -->
+      <div class="overflow-x-auto -mx-4 sm:mx-0">
+        <div class="inline-block min-w-full align-middle">
+          <table class="min-w-full text-left text-xs divide-y divide-slate-800" id="auditTable">
+            <thead>
+              <tr class="bg-slate-900/80 text-slate-300 font-semibold tracking-wider uppercase text-[11px]">
+                <th scope="col" class="py-3 px-4 rounded-l-xl">Unidad</th>
+                <th scope="col" class="py-3 px-4">Canal / Concepto</th>
+                <th scope="col" class="py-3 px-4 text-right">Inversión (S/.)</th>
+                <th scope="col" class="py-3 px-4 text-right">Ventas Atrib. (S/.)</th>
+                <th scope="col" class="py-3 px-4 text-right">ROAS</th>
+                <th scope="col" class="py-3 px-4 text-right">CPA (S/.)</th>
+                <th scope="col" class="py-3 px-4 text-center rounded-r-xl">Estado / Eficiencia</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-800/60 font-medium text-slate-200" id="tableBody">
+              <!-- CRM Row -->
+              <tr class="hover:bg-slate-800/40 transition data-row-crm">
+                <td class="py-3 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                    CRM COSMIQ
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="font-bold text-white">Pauta Meta Ads Cosmiq</div>
+                  <div class="text-[11px] text-slate-400">Hydraulic Corp, VAMS, Joghead, Dr. Wax (5 cierres)</div>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-slate-200">S/. 442.77</td>
+                <td class="py-3 px-4 text-right font-mono font-bold text-emerald-400">S/. 28,046.00</td>
+                <td class="py-3 px-4 text-right font-mono font-bold text-emerald-400 text-sm">63.34x</td>
+                <td class="py-3 px-4 text-right font-mono text-cyan-300">S/. 88.55</td>
+                <td class="py-3 px-4 text-center">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    Hiper-Rentable
+                  </span>
+                </td>
+              </tr>
+
+              <!-- INOO FB Ads 1 -->
+              <tr class="hover:bg-slate-800/40 transition data-row-inoo">
+                <td class="py-3 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    INOO Digital
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="font-bold text-white">Meta / FB Ads Campaña 1</div>
+                  <div class="text-[11px] text-slate-400">Campaña Branding & Audiovisual</div>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-slate-200">S/. 722.41</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-300">S/. 2,094.00</td>
+                <td class="py-3 px-4 text-right font-mono font-bold text-emerald-400">2.90x</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-300">S/. 722.41</td>
+                <td class="py-3 px-4 text-center">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/20">
+                    Rentable
+                  </span>
+                </td>
+              </tr>
+
+              <!-- INOO FB Ads 2 -->
+              <tr class="hover:bg-slate-800/40 transition data-row-inoo">
+                <td class="py-3 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    INOO Digital
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="font-bold text-white">Meta / FB Ads Campaña 2</div>
+                  <div class="text-[11px] text-slate-400">Web Ecommerce VAMS & Web Catálogo OHS</div>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-slate-200">S/. 2,875.00</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-300">S/. 5,820.00</td>
+                <td class="py-3 px-4 text-right font-mono font-bold text-emerald-400">2.02x</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-300">S/. 1,437.50</td>
+                <td class="py-3 px-4 text-center">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-500/15 text-blue-300 border border-blue-500/20">
+                    Positivo
+                  </span>
+                </td>
+              </tr>
+
+              <!-- INOO Google Ads -->
+              <tr class="hover:bg-slate-800/40 transition data-row-inoo">
+                <td class="py-3 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    INOO Digital
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="font-bold text-white">Google Search Ads</div>
+                  <div class="text-[11px] text-slate-400">Palabras clave B2B Digital & Leads Web</div>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-slate-200">S/. 135.50</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-400">Atribución mixta</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-400">--</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-400">--</td>
+                <td class="py-3 px-4 text-center">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/20">
+                    Prospección
+                  </span>
+                </td>
+              </tr>
+
+              <!-- INOO Telefonía Móvil -->
+              <tr class="hover:bg-slate-800/40 transition data-row-inoo">
+                <td class="py-3 px-4">
+                  <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+                    INOO Digital
+                  </span>
+                </td>
+                <td class="py-3 px-4">
+                  <div class="font-bold text-white">Telefonía Móvil Comercial</div>
+                  <div class="text-[11px] text-slate-400">Líneas de seguimiento y contacto directo a leads</div>
+                </td>
+                <td class="py-3 px-4 text-right font-mono text-slate-200">S/. 355.00</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-400">Gasto Soporte</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-400">--</td>
+                <td class="py-3 px-4 text-right font-mono text-slate-400">--</td>
+                <td class="py-3 px-4 text-center">
+                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-700 text-slate-300">
+                    Operativo
+                  </span>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr class="bg-slate-900/90 font-bold text-slate-100 text-xs border-t-2 border-slate-700" id="tableFooter">
+                <td class="py-3.5 px-4" colspan="2">TOTAL CONSOLIDADO (Septiembre)</td>
+                <td class="py-3.5 px-4 text-right font-mono text-cyan-400" id="ft-spend">S/. 4,530.68</td>
+                <td class="py-3.5 px-4 text-right font-mono text-emerald-400" id="ft-rev">S/. 35,960.00</td>
+                <td class="py-3.5 px-4 text-right font-mono text-emerald-400" id="ft-roas">7.94x</td>
+                <td class="py-3.5 px-4 text-right font-mono text-slate-200" id="ft-cpa">S/. 503.41</td>
+                <td class="py-3.5 px-4 text-center">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500 text-slate-950">
+                    ROI +693.7%
+                  </span>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer informativo -->
+    <footer class="flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500 pt-2 pb-6 border-t border-slate-800/60">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+        <span>Autónomo para R Markdown, GitHub Pages y Servidores Web Locales</span>
+      </div>
+      <div>
+        Generado con precisión matemática para métricas de Marketing &amp; Ventas
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- JavaScript interactivo y Configuración de Chart.js -->
+  <script>
+    // --- ESTADO Y DATOS REALES ---
+    const dataSet = {
+      all: {
+        revenue: 'S/. 35,960.00',
+        spend: 'S/. 4,530.68',
+        roas: '7.94x',
+        roiBadge: 'ROI +693.7%',
+        cpa: 'S/. 503.41',
+        cpaPure: 'Pauta: S/. 463.96',
+        deals: '9 Clientes',
+        dealsSplit: 'CRM: 5 | INOO: 4',
+        netMargin: 'Neto: S/. 31,429.32',
+        revContext: '100% Total',
+        spendBreakdown: 'Pauta S/. 4,175.68',
+        spendTel: 'Tel: S/. 355.00',
+        roasPure: 'Pauta: 8.61x'
+      },
+      inoo: {
+        revenue: 'S/. 7,914.00',
+        spend: 'S/. 4,087.91',
+        roas: '1.94x',
+        roiBadge: 'ROI +93.6%',
+        cpa: 'S/. 1,021.98',
+        cpaPure: 'Pauta: S/. 933.23',
+        deals: '4 Clientes',
+        dealsSplit: '4 cierres audiovisuales/web',
+        netMargin: 'Neto: S/. 3,826.09',
+        revContext: '22.0% del Total',
+        spendBreakdown: 'Pauta S/. 3,732.91',
+        spendTel: 'Tel: S/. 355.00',
+        roasPure: 'Pauta: 2.12x'
+      },
+      crm: {
+        revenue: 'S/. 28,046.00',
+        spend: 'S/. 442.77',
+        roas: '63.34x',
+        roiBadge: 'ROI +6,234.2%',
+        cpa: 'S/. 88.55',
+        cpaPure: 'Solo Pauta Meta',
+        deals: '5 Clientes',
+        dealsSplit: '5 cuentas corporativas',
+        netMargin: 'Neto: S/. 27,603.23',
+        revContext: '78.0% del Total',
+        spendBreakdown: 'Pauta S/. 442.77',
+        spendTel: 'Tel: S/. 0.00',
+        roasPure: 'Pauta: 63.34x'
+      }
+    };
+
+    // Chart.js Global Settings for Dark SaaS Theme
+    Chart.defaults.color = '#94A3B8';
+    Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+    Chart.defaults.plugins.tooltip.backgroundColor = '#0F172A';
+    Chart.defaults.plugins.tooltip.titleColor = '#F8FAFC';
+    Chart.defaults.plugins.tooltip.bodyColor = '#E2E8F0';
+    Chart.defaults.plugins.tooltip.borderColor = '#334155';
+    Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.plugins.tooltip.padding = 10;
+    Chart.defaults.plugins.tooltip.cornerRadius = 8;
+    Chart.defaults.plugins.tooltip.boxPadding = 4;
+
+    // Formateador de moneda en Soles
+    const formatPEN = (val) => 'S/. ' + Number(val).toLocaleString('es-PE', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // 1. Gráfico Comparativo: Inversión vs Ventas (Bar Chart)
+    const ctxComp = document.getElementById('chartComparison').getContext('2d');
+    const chartComparison = new Chart(ctxComp, {
+      type: 'bar',
+      data: {
+        labels: ['CRM & Licencias COSMIQ', 'INOO Servicios Digitales'],
+        datasets: [
+          {
+            label: 'Ingresos por Ventas (S/.)',
+            data: [28046.00, 7914.00],
+            backgroundColor: '#2563EB',
+            borderRadius: 8,
+            borderSkipped: false,
+            barPercentage: 0.6,
+            categoryPercentage: 0.7
+          },
+          {
+            label: 'Inversión Ejecutada (S/.)',
+            data: [442.77, 4087.91],
+            backgroundColor: '#06B6D4',
+            borderRadius: 8,
+            borderSkipped: false,
+            barPercentage: 0.6,
+            categoryPercentage: 0.7
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` ${context.dataset.label}: ${formatPEN(context.raw)}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { color: '#94A3B8', font: { weight: '600' } }
+          },
+          y: {
+            grid: { color: 'rgba(51, 65, 85, 0.4)' },
+            ticks: {
+              color: '#64748B',
+              callback: (val) => 'S/. ' + (val >= 1000 ? (val / 1000) + 'k' : val)
+            }
+          }
+        }
+      }
+    });
+
+    // 2. Gráfico Doughnut: Share de Ingresos
+    const ctxShare = document.getElementById('chartShare').getContext('2d');
+    const chartShare = new Chart(ctxShare, {
+      type: 'doughnut',
+      data: {
+        labels: ['CRM COSMIQ (78.0%)', 'INOO Digital (22.0%)'],
+        datasets: [{
+          data: [28046.00, 7914.00],
+          backgroundColor: ['#2563EB', '#06B6D4'],
+          borderColor: '#111827',
+          borderWidth: 4,
+          hoverOffset: 6
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        cutout: '72%',
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` ${context.label}: ${formatPEN(context.raw)}`
+            }
+          }
+        }
+      }
+    });
+
+    // 3. Gráfico Horizontal: Rendimiento Comercial
+    const ctxTeam = document.getElementById('chartSalesTeam').getContext('2d');
+    const chartSalesTeam = new Chart(ctxTeam, {
+      type: 'bar',
+      data: {
+        labels: ['Jean Pierre (5 cierres)', 'Virginia Pa... (2 cierres)', 'Omar Suyo (1 cierre)', 'Ernesto Vas... (1 cierre)'],
+        datasets: [{
+          label: 'Ventas Generadas (S/.)',
+          data: [28046.00, 5820.00, 1194.00, 900.00],
+          backgroundColor: [
+            '#10B981', // Top performer
+            '#2563EB',
+            '#06B6D4',
+            '#64748B'
+          ],
+          borderRadius: 8,
+          borderSkipped: false,
+          barPercentage: 0.65
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => ` Ventas Atribuidas: ${formatPEN(context.raw)}`
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { color: 'rgba(51, 65, 85, 0.4)' },
+            ticks: {
+              color: '#64748B',
+              callback: (val) => 'S/. ' + (val >= 1000 ? (val / 1000) + 'k' : val)
+            }
+          },
+          y: {
+            grid: { display: false },
+            ticks: { color: '#E2E8F0', font: { weight: '600' } }
+          }
+        }
+      }
+    });
+
+    // --- FUNCIÓN DE FILTRADO DINÁMICO ---
+    function applyFilter(mode) {
+      // 1. Botones de toggle activo
+      const buttons = ['all', 'inoo', 'crm'];
+      buttons.forEach(b => {
+        const btn = document.getElementById(`btn-${b}`);
+        if (b === mode) {
+          btn.className = "filter-btn active px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 bg-blue-600 text-white shadow-lg shadow-blue-600/30 text-center";
+        } else {
+          btn.className = "filter-btn px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 text-slate-400 hover:text-white hover:bg-slate-800/80 text-center";
+        }
+      });
+
+      // 2. Actualizar KPIs de tarjetas
+      const curr = dataSet[mode];
+      document.getElementById('kpi-revenue').innerText = curr.revenue;
+      document.getElementById('kpi-spend').innerText = curr.spend;
+      document.getElementById('kpi-roas').innerText = curr.roas;
+      document.getElementById('kpi-roi-badge').innerText = curr.roiBadge;
+      document.getElementById('kpi-cpa').innerText = curr.cpa;
+      document.getElementById('kpi-cpa-pure').innerText = curr.cpaPure;
+      document.getElementById('kpi-deals').innerText = curr.deals;
+      document.getElementById('kpi-deals-split').innerText = curr.dealsSplit;
+      document.getElementById('kpi-net-margin').innerText = curr.netMargin;
+      document.getElementById('kpi-rev-context').innerText = curr.revContext;
+      document.getElementById('kpi-spend-breakdown').innerText = curr.spendBreakdown;
+      document.getElementById('kpi-spend-tel').innerText = curr.spendTel;
+      document.getElementById('kpi-roas-pure').innerText = curr.roasPure;
+
+      // 3. Filtrar filas de tabla
+      const rowsCrm = document.querySelectorAll('.data-row-crm');
+      const rowsInoo = document.querySelectorAll('.data-row-inoo');
+      const ftSpend = document.getElementById('ft-spend');
+      const ftRev = document.getElementById('ft-rev');
+      const ftRoas = document.getElementById('ft-roas');
+      const ftCpa = document.getElementById('ft-cpa');
+
+      if (mode === 'all') {
+        rowsCrm.forEach(r => r.style.display = '');
+        rowsInoo.forEach(r => r.style.display = '');
+        ftSpend.innerText = 'S/. 4,530.68';
+        ftRev.innerText = 'S/. 35,960.00';
+        ftRoas.innerText = '7.94x';
+        ftCpa.innerText = 'S/. 503.41';
+      } else if (mode === 'inoo') {
+        rowsCrm.forEach(r => r.style.display = 'none');
+        rowsInoo.forEach(r => r.style.display = '');
+        ftSpend.innerText = 'S/. 4,087.91';
+        ftRev.innerText = 'S/. 7,914.00';
+        ftRoas.innerText = '1.94x';
+        ftCpa.innerText = 'S/. 1,021.98';
+      } else if (mode === 'crm') {
+        rowsCrm.forEach(r => r.style.display = '');
+        rowsInoo.forEach(r => r.style.display = 'none');
+        ftSpend.innerText = 'S/. 442.77';
+        ftRev.innerText = 'S/. 28,046.00';
+        ftRoas.innerText = '63.34x';
+        ftCpa.innerText = 'S/. 88.55';
+      }
+
+      // 4. Actualizar visualización en gráficos de acuerdo a la selección
+      if (mode === 'all') {
+        chartComparison.data.labels = ['CRM & Licencias COSMIQ', 'INOO Servicios Digitales'];
+        chartComparison.data.datasets[0].data = [28046.00, 7914.00];
+        chartComparison.data.datasets[1].data = [442.77, 4087.91];
+
+        chartShare.data.labels = ['CRM COSMIQ (78.0%)', 'INOO Digital (22.0%)'];
+        chartShare.data.datasets[0].data = [28046.00, 7914.00];
+        chartShare.data.datasets[0].backgroundColor = ['#2563EB', '#06B6D4'];
+
+        chartSalesTeam.data.labels = ['Jean Pierre (5 cierres)', 'Virginia Pa... (2 cierres)', 'Omar Suyo (1 cierre)', 'Ernesto Vas... (1 cierre)'];
+        chartSalesTeam.data.datasets[0].data = [28046.00, 5820.00, 1194.00, 900.00];
+        chartSalesTeam.data.datasets[0].backgroundColor = ['#10B981', '#2563EB', '#06B6D4', '#64748B'];
+      } else if (mode === 'inoo') {
+        chartComparison.data.labels = ['INOO Digital (Consolidado)'];
+        chartComparison.data.datasets[0].data = [7914.00];
+        chartComparison.data.datasets[1].data = [4087.91];
+
+        chartShare.data.labels = ['INOO Digital (100%)'];
+        chartShare.data.datasets[0].data = [7914.00];
+        chartShare.data.datasets[0].backgroundColor = ['#06B6D4'];
+
+        chartSalesTeam.data.labels = ['Virginia Pa... (Webs)', 'Omar Suyo (Video)', 'Ernesto Vas... (Branding)'];
+        chartSalesTeam.data.datasets[0].data = [5820.00, 1194.00, 900.00];
+        chartSalesTeam.data.datasets[0].backgroundColor = ['#2563EB', '#06B6D4', '#64748B'];
+      } else if (mode === 'crm') {
+        chartComparison.data.labels = ['CRM & Licencias COSMIQ'];
+        chartComparison.data.datasets[0].data = [28046.00];
+        chartComparison.data.datasets[1].data = [442.77];
+
+        chartShare.data.labels = ['CRM COSMIQ (100%)'];
+        chartShare.data.datasets[0].data = [28046.00];
+        chartShare.data.datasets[0].backgroundColor = ['#2563EB'];
+
+        chartSalesTeam.data.labels = ['Jean Pierre (5 cierres corporativos)'];
+        chartSalesTeam.data.datasets[0].data = [28046.00];
+        chartSalesTeam.data.datasets[0].backgroundColor = ['#10B981'];
+      }
+
+      chartComparison.update();
+      chartShare.update();
+      chartSalesTeam.update();
+    }
+  </script>
+</body>
+</html>
